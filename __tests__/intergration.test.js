@@ -69,3 +69,43 @@ describe("/api/topics",()=>{
         })
     })
 })
+
+//ARTICLES TESTS======================================
+//===================================================
+//===================================================
+
+//GET ARTICLE BY ID==================================
+describe("/api/articles/:article_id",()=>{
+    test("GET: 200 - Retrieved data from article based on id.",()=>{
+        return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({body:{article}})=>{
+           expect(article.title).toBe("Living in the shadow of a great man") 
+           expect(article.topic).toBe("mitch")
+           expect(article.author).toBe("butter_bridge")
+           expect(article.body).toBe("I find this existence challenging")
+           //MENTOR is this the correct way to check for "created_at" as when I ran it in the format of the others it would create a new time, I think.
+           expect(article).toMatchObject({ created_at: expect.any(String)})
+           expect(article.votes).toBe(100)
+           expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+        })
+    })
+
+    test("Error: 404 - Id is valid but cannot be found",()=>{
+        return request(app)
+        .get("/api/articles/999")
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe("Error 404 - Article Not Found")
+        })
+    })
+    test("Error: 400 - Bad request, Id is not correct data type",()=>{
+        return request(app)
+        .get("/api/articles/string")
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+})
