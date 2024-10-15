@@ -4,6 +4,7 @@ const db=require("../db/connection.js")
 const data=require("../db/data/test-data")
 const app=require("../app.js")
 
+//Refactor to not use FS after core
 const fs=require("fs/promises")
 
 beforeEach(()=>{
@@ -11,7 +12,7 @@ beforeEach(()=>{
 })
 
 afterAll(()=>{
-    db.end()
+    return db.end()
 })
 
 //API TESTS===========================================
@@ -43,7 +44,6 @@ describe("/api/<endpoint_that_doesn't_exist>",()=>{
         .get("/api/anywhere")
         .expect(404)
         .then((response)=>{
-            expect(response.status).toBe(404)
             expect(response.body.msg).toBe("Error 404 - Endpoint Not Found")
         })
     })
@@ -54,7 +54,7 @@ describe("/api/<endpoint_that_doesn't_exist>",()=>{
 //===================================================
 
 describe("/api/topics",()=>{
-    test('GET: 200 - Responds with all key\'s data', () => {
+    test('GET: 200 - Responds with all columns of topics (besides unique id)', () => {
         return request(app)
         .get("/api/topics")
         .expect(200)
@@ -65,6 +65,7 @@ describe("/api/topics",()=>{
                     slug:expect.any(String)
                 })
             })
+            expect(topics.length).not.toEqual(0)
         })
     })
 })
