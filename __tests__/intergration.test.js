@@ -74,6 +74,39 @@ describe("/api/topics",()=>{
 //===================================================
 //===================================================
 
+//GET ALL ARTICLES===================================
+describe("/api/articles",()=>{
+    test("GET: 200 - Retrieved all data from articles", ()=>{
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({body:{articles}})=>{
+            articles.forEach((article)=>{
+                expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number)
+                })
+            })
+            expect(articles.length).not.toBe(0)
+        })
+    })
+    test("GET: 200 - Retrieved all data from articles in descending order of created_at",()=>{
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({body:{articles}})=>{
+            expect(articles).toBeSortedBy("created_at",{descending:true})
+            
+        })
+    })
+})
+
 //GET ARTICLE BY ID==================================
 describe("/api/articles/:article_id",()=>{
     test("GET: 200 - Retrieved data from article based on id.",()=>{
