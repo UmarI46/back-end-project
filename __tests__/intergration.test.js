@@ -142,3 +142,50 @@ describe("/api/articles/:article_id",()=>{
         })
     })
 })
+
+//GET ALL COMMENTS BY ARTICLE ID======================
+
+describe("/api/articles/:article_id/comments",()=>{
+    test("GET: 200 - Received all columns from comments depending on article ID",()=>{
+        return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({body:{comments}})=>{
+            comments.forEach((comment)=>{
+                expect(comment).toMatchObject({
+                    comment_id : expect.any(Number),
+                    votes: expect.any(Number),
+                    created_at: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    article_id: expect.any(Number)
+                })
+            })
+            expect(comments.length).not.toBe(0)
+        })
+    })
+    test("GET: 200 - Received data in descending order of created_at",()=>{
+        return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({body:{comments}})=>{
+            expect(comments).toBeSortedBy("created_at",{descending:true})
+        })
+    })
+    test("Error: 404 - ID Not Found, when given an ID that does not exist",()=>{
+        return request(app)
+        .get("/api/articles/999/comments")
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe("Error 404 - Article Not Found")
+        })
+    })
+    test("Error: 400 - Bad request, ID is not correct data type",()=>{
+        return request(app)
+        .get("/api/articles/string/comments")
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+})
