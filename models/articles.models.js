@@ -24,3 +24,20 @@ exports.selectArticlesById=((article_id)=>{
         return result.rows[0]
     })
 })
+
+exports.selectAllCommentsByArticleId=((article_id)=>{
+    return db.query(`SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id 
+    FROM articles
+    INNER JOIN comments
+    ON comments.article_id= articles.article_id 
+    WHERE articles.article_id = $1
+    ORDER BY comments.created_at DESC
+    ;`
+    ,[article_id])
+    .then((result)=>{
+        if(result.rows.length===0){
+            return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
+        } 
+        return result.rows
+    })
+})
