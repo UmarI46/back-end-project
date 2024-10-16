@@ -26,7 +26,7 @@
       ]
     }
   },
-  "GET /api/articles/::article_id":{
+  "GET /api/articles/:article_id":{
     "description": "serves a specific object of the article which was requested via the id",
     "queries": [],
     "exampleResponse" : {
