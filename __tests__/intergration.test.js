@@ -255,13 +255,26 @@ describe("POST /api/articles/:article_id/comments",()=>{
 //====================================================
 
 //DELETE COMMENTS BY ID===============================
-xdescribe("DELETE /api/comments/:comment_id",()=>{
+describe("DELETE /api/comments/:comment_id",()=>{
     test("DELETE: 204 - Deleted comment by ID",()=>{
         return request(app)
         .delete("/api/comments/3")
         .expect(204)
-        .then(()=>{
-
+    })
+    test("Error: 404 - Deleted comment by ID",()=>{
+        return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 404 - Comment Not Found")
+        })
+    })
+    test("Error: 400 - Deleted comment by ID",()=>{
+        return request(app)
+        .delete("/api/comments/string")
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
         })
     })
 })
