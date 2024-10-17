@@ -19,7 +19,7 @@ afterAll(()=>{
 //===================================================
 //===================================================
 
-describe("/api",()=>{
+describe("GET /api",()=>{
     test("GET 200: Returns all available endpoints",()=>{
         return request(app)
         .get("/api")
@@ -38,7 +38,7 @@ describe("/api",()=>{
 //===================================================
 //===================================================
 
-describe("/api/<endpoint_that_doesn't_exist>",()=>{
+describe("GET /api/<endpoint_that_doesn't_exist>",()=>{
     test("Error 404 - Endpoint Not Found",()=>{
         return request(app)
         .get("/api/anywhere")
@@ -53,7 +53,7 @@ describe("/api/<endpoint_that_doesn't_exist>",()=>{
 //===================================================
 //===================================================
 
-describe("/api/topics",()=>{
+describe("GET /api/topics",()=>{
     test('GET: 200 - Responds with all columns of topics (besides unique id)', () => {
         return request(app)
         .get("/api/topics")
@@ -75,7 +75,7 @@ describe("/api/topics",()=>{
 //===================================================
 
 //GET ALL ARTICLES===================================
-describe("/api/articles",()=>{
+describe("GET /api/articles",()=>{
     test("GET: 200 - Retrieved all data from articles", ()=>{
         return request(app)
         .get("/api/articles")
@@ -108,7 +108,7 @@ describe("/api/articles",()=>{
 })
 
 //GET ARTICLE BY ID==================================
-describe("/api/articles/:article_id",()=>{
+describe("GET /api/articles/:article_id",()=>{
     test("GET: 200 - Retrieved data from article based on id.",()=>{
         return request(app)
         .get("/api/articles/1")
@@ -145,7 +145,7 @@ describe("/api/articles/:article_id",()=>{
 
 //GET ALL COMMENTS BY ARTICLE ID======================
 
-describe("/api/articles/:article_id/comments",()=>{
+describe("GET /api/articles/:article_id/comments",()=>{
     test("GET: 200 - Received all columns from comments depending on article ID",()=>{
         return request(app)
         .get("/api/articles/1/comments")
@@ -186,6 +186,64 @@ describe("/api/articles/:article_id/comments",()=>{
         .expect(400)
         .then(({body})=>{
             expect(body.msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+})
+
+//POST COMMENT ON AN ARTICLE==========================
+
+xdescribe("POST /api/articles/:article_id/comments",()=>{
+    test("POST: 201 - Posted a new comment to the article",()=>{
+        const testComment={
+            body: "This article would actually be really informative if it was re-written by my 8 year old.",
+            votes: 23,
+            author: "Negs"
+        }
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(testComment)
+        .expect(201)
+        .then(()=>{
+
+        })
+    })
+})
+
+//COMMENTS============================================
+//====================================================
+//====================================================
+
+//DELETE COMMENTS BY ID===============================
+xdescribe("DELETE /api/comments/:comment_id",()=>{
+    test("DELETE: 204 - Deleted comment by ID",()=>{
+        return request(app)
+        .delete("/api/comments/3")
+        .expect(204)
+        .then(()=>{
+
+        })
+    })
+})
+
+//USERS===============================================
+//====================================================
+//====================================================
+
+//GET ALL USERS=======================================
+describe("GET /api/users",()=>{
+    test("GET: 200 - Get all data from the users table",()=>{
+        return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({body:{users}})=>{
+            users.forEach((user)=>{
+                expect(user).toMatchObject({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String)
+                })
+            })
+            expect(users.length).not.toBe(0)
         })
     })
 })
