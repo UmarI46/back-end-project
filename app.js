@@ -18,9 +18,9 @@ app.get("/api/articles/:article_id", getArticlesById)
 
 app.get("/api/articles/:article_id/comments", getAllCommentsByArticleId)
 
-app.get("/api/users", getAllUsers)
-
 app.post("/api/articles/:article_id/comments", writeACommentOnArticle)
+
+app.get("/api/users", getAllUsers)
 
 app.delete("/api/comments/:comment_id", removeCommentById)
 
@@ -42,6 +42,13 @@ app.use((err,req,res,next)=>{
 app.use((err,req,res,next)=>{
     if(err.code==="22P02"){
         res.status(400).send({msg: "Error 400 - Bad Request Given"})
+    }
+    else next(err)
+})
+
+app.use((err,req,res,next)=>{
+    if(err.code==="23503"){
+        res.status(404).send({msg: "Error 404 - Article Not Found"})
     }
     else next(err)
 })
