@@ -27,7 +27,7 @@ exports.selectArticlesById=((article_id)=>{
 
 exports.selectAllCommentsByArticleId=((article_id)=>{
     let validId=false
-    console.log( Number(article_id))
+    //console.log( Number(article_id))
     if(typeof Number(article_id) !==NaN){
         db.query(`SELECT * FROM articles 
             WHERE article_id=$1
@@ -60,7 +60,7 @@ exports.postACommentOnArticle=((article_id, username, body)=>{
 
         .then((result)=>{
             if(result.rows.length===0){
-                return Promise.reject({status: 404, msg: "Error 404 - Article Not Found"})
+                return Promise.reject()
             }
             return result.rows[0]
         })

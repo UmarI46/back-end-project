@@ -31,8 +31,7 @@ exports.getAllCommentsByArticleId=(req,res,next)=>{
 
 exports.writeACommentOnArticle=(req,res,next)=>{
     const {article_id}=req.params
-    const {body}=req.body
-    const {username}=req.body
+    const {body, username}=req.body
     postACommentOnArticle(article_id, username, body)
     .then((newComment)=>{
         res.status(201).send({newComment})

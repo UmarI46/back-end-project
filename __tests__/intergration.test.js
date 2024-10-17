@@ -120,7 +120,6 @@ describe("GET /api/articles/:article_id",()=>{
            expect(article.topic).toBe("mitch")
            expect(article.author).toBe("butter_bridge")
            expect(article.body).toBe("I find this existence challenging")
-           //MENTOR is this the correct way to check for "created_at" as when I ran it in the format of the others it would create a new time, I think.
            expect(article).toMatchObject({ created_at: expect.any(String)})
            expect(article.votes).toBe(100)
            expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
@@ -175,7 +174,7 @@ describe("GET /api/articles/:article_id/comments",()=>{
         })
     })
     test("GET: 200 - Received an empty array when given article ID that doesn't have any comments",()=>{
-        console.log("get 200 place")
+        //console.log("get 200 place")
         return request(app)
         .get("/api/articles/4/comments")
         .expect(200)
@@ -184,7 +183,7 @@ describe("GET /api/articles/:article_id/comments",()=>{
         })
     })
     test("Error: 404 - ID Not Found, when given an ID that does not exist",()=>{
-        console.log("error 404 place")
+        //console.log("error 404 place")
         return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
@@ -208,6 +207,24 @@ describe("POST /api/articles/:article_id/comments",()=>{
     test("POST: 201 - Posted a comment on an article",()=>{
         const testComment={username: "butter_bridge",
             body:"Lorum Ipsum..."
+        }
+        return request(app)
+        .post("/api/articles/3/comments")
+        .send(testComment)
+        .expect(201)
+        .then(({body:{newComment}})=>{
+            expect(newComment.comment_id).toBe(19)
+            expect(newComment.body).toBe("Lorum Ipsum...")
+            expect(newComment.article_id).toBe(3)
+            expect(newComment.votes).toBe(0)
+            expect(newComment.author).toBe("butter_bridge")
+            expect(typeof newComment.created_at).toBe("string")
+        })
+    })
+    test("POST: 201 - Still posts when given extra properties in the request object",()=>{
+        const testComment={username: "butter_bridge",
+            body:"Lorum Ipsum...",
+            votes:500
         }
         return request(app)
         .post("/api/articles/3/comments")
@@ -246,7 +263,36 @@ describe("POST /api/articles/:article_id/comments",()=>{
         .then(({body:{msg}})=>{
             expect(msg).toBe("Error 400 - Bad Request Given")
         })
-
+    })
+    test("Error: 400 - Bad request, No body text given.",()=>{
+        const testComment={username: "butter_bridge"}
+        return request(app)
+        .post("/api/articles/3/comments")
+        .send(testComment)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+    test("Error: 400 - Bad request, No username text given.",()=>{
+        const testComment={body:"Lorum Ipsum..."}
+        return request(app)
+        .post("/api/articles/3/comments")
+        .send(testComment)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+    test("Error: 400 - Bad request, Username does not exist.",()=>{
+        const testComment={username: "test_user"}
+        return request(app)
+        .post("/api/articles/3/comments")
+        .send(testComment)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
     })
 })
 
