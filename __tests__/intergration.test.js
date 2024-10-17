@@ -189,3 +189,50 @@ describe("/api/articles/:article_id/comments",()=>{
         })
     })
 })
+
+//POST A COMMENT ON AN ARTICLE========================
+describe("POST /api/articles/:article_id/comments",()=>{
+    test("POST: 201 - Posted a comment on an article",()=>{
+        const testComment={username: "butter_bridge",
+            body:"Lorum Ipsum..."
+        }
+        return request(app)
+        .post("/api/articles/3/comments")
+        .send(testComment)
+        .expect(201)
+        .then(({body:{newComment}})=>{
+            expect(newComment.comment_id).toBe(19)
+            expect(newComment.body).toBe("Lorum Ipsum...")
+            expect(newComment.article_id).toBe(3)
+            expect(newComment.votes).toBe(0)
+            expect(newComment.author).toBe("butter_bridge")
+            expect(typeof newComment.created_at).toBe("string")
+        })
+    })
+    test("Error: 404 - Cannot Find That Article ID",()=>{
+        const testComment={username: "butter_bridge",
+            body:"Lorum Ipsum..."
+        }
+        return request(app)
+        .post("/api/articles/999/comments")
+        .send(testComment)
+        .expect(404)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 404 - Article Not Found")
+        })
+
+    })
+    test("Error: 400 - Bad request, ID is not correct data type",()=>{
+        const testComment={username: "butter_bridge",
+            body:"Lorum Ipsum..."
+        }
+        return request(app)
+        .post("/api/articles/string/comments")
+        .send(testComment)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
+
+    })
+})

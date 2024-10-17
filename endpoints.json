@@ -57,5 +57,19 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Creates a new comment on an article",
+    "queries": [],
+    "exampleResponse": {
+        "newComment": {
+        "comment_id": 19,
+        "body": "Lorum Ipsum...",
+        "article_id": 3,
+        "author": "butter_bridge",
+        "votes": 0,
+        "created_at": "2024-10-17T09:50:58.044Z"
+      }
+    }
   }
 }

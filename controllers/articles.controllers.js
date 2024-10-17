@@ -1,4 +1,4 @@
-const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId } = require("../models/articles.models")
+const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId, postACommentOnArticle } = require("../models/articles.models")
 
 exports.getAllArticles=(req,res,next)=>{
     selectAllArticles()
@@ -25,6 +25,20 @@ exports.getAllCommentsByArticleId=(req,res,next)=>{
         res.status(200).send({comments})
     })
     .catch((err)=>{
+        return next(err)
+    })
+}
+
+exports.writeACommentOnArticle=(req,res,next)=>{
+    const {article_id}=req.params
+    const {body}=req.body
+    const {username}=req.body
+    postACommentOnArticle(article_id, username, body)
+    .then((newComment)=>{
+        res.status(201).send({newComment})
+    })
+    .catch((err)=>{
+        console.log(err.code)
         return next(err)
     })
 }
