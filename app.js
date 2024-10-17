@@ -1,7 +1,7 @@
 const express=require("express")
 const { getTopics } = require("./controllers/topics.controllers")
 const { getApis } = require("./controllers/api.controllers")
-const { getArticlesById, getAllArticles, getAllCommentsByArticleId, writeACommentOnArticle, writeACommentOnArticle } = require("./controllers/articles.controllers")
+const { getArticlesById, getAllArticles, getAllCommentsByArticleId, writeACommentOnArticle } = require("./controllers/articles.controllers")
 const { removeCommentById } = require("./controllers/comments.controllers")
 const { getAllUsers } = require("./controllers/users.controllers")
 const app=express()
