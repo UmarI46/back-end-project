@@ -26,6 +26,16 @@ exports.selectArticlesById=((article_id)=>{
 })
 
 exports.selectAllCommentsByArticleId=((article_id)=>{
+    let validId=false
+    console.log( Number(article_id))
+    if(typeof Number(article_id) !==NaN){
+        db.query(`SELECT * FROM articles 
+            WHERE article_id=$1
+        ;`,[article_id])
+        .then((result)=>{
+            if(result.rows.length>0)validId=true
+        })
+    }
     return db.query(`SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id 
     FROM articles
     INNER JOIN comments
@@ -35,7 +45,7 @@ exports.selectAllCommentsByArticleId=((article_id)=>{
     ;`
     ,[article_id])
     .then((result)=>{
-        if(result.rows.length===0){
+        if(result.rows.length===0 && validId===false){
             return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
         } 
         return result.rows

@@ -38,7 +38,6 @@ exports.writeACommentOnArticle=(req,res,next)=>{
         res.status(201).send({newComment})
     })
     .catch((err)=>{
-        console.log(err.code)
         return next(err)
     })
 }

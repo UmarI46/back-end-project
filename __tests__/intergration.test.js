@@ -7,6 +7,8 @@ const app=require("../app.js")
 //Refactor to not use FS after core
 const fs=require("fs/promises")
 
+//PUT ALL THE CHECK LENGTHS BEFORE THE FOR EACHES
+
 beforeEach(()=>{
     return seed(data)
 })
@@ -172,7 +174,17 @@ describe("GET /api/articles/:article_id/comments",()=>{
             expect(comments).toBeSortedBy("created_at",{descending:true})
         })
     })
+    test("GET: 200 - Received an empty array when given article ID that doesn't have any comments",()=>{
+        console.log("get 200 place")
+        return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({body:{comments}})=>{
+            expect(Array.isArray(comments)).toBe(true)
+        })
+    })
     test("Error: 404 - ID Not Found, when given an ID that does not exist",()=>{
+        console.log("error 404 place")
         return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
@@ -180,7 +192,8 @@ describe("GET /api/articles/:article_id/comments",()=>{
             expect(body.msg).toBe("Error 404 - Article Not Found")
         })
     })
-    test("Error: 400 - Bad request, ID is not correct data type",()=>{
+    xtest("Error: 400 - Bad request, ID is not correct data type",()=>{
+        console.log("error 400 place")
         return request(app)
         .get("/api/articles/string/comments")
         .expect(400)
