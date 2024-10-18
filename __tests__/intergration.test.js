@@ -109,12 +109,36 @@ describe("GET /api/articles",()=>{
         })
     })
     //QUERIES=========================================
-    xtest("GET: 200 - Retrieved all data from articles sorted by the column queried",()=>{
+    test("GET: 200 - Retrieved all data from articles sorted by the column queried",()=>{
         return request(app)
         .get("/api/articles?sort_by=author")
         .expect(200)
         .then(({body: {articles}})=>{
             expect(articles).toBeSortedBy("author",{descending: true})
+        })
+    })
+    test("GET: 200 - Retrieved all data from articles sorted by the column queried AND can be changed to order by ascending or descending",()=>{
+        return request(app)
+        .get("/api/articles?sort_by=topic&order=ASC")
+        .expect(200)
+        .then(({body: {articles}})=>{
+            expect(articles).toBeSortedBy("topic",{descending: false})
+        })
+    })
+    test("GET: 200 - Retrieved all data from articles sorted ascending or descending",()=>{
+        return request(app)
+        .get("/api/articles?order=ASC")
+        .expect(200)
+        .then(({body: {articles}})=>{
+            expect(articles).toBeSortedBy("created_at",{descending: false})
+        })
+    })
+    test("Error: 404 - Invalid Query Given",()=>{
+        return request(app)
+        .get("/api/articles?sort_by=votes&order=ASC SELECT * FROM articles")
+        .expect(404)
+        .then(({body: {msg}})=>{
+            expect(msg).toBe("Error 404 - Invalid Input Given")
         })
     })
 })

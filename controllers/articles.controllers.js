@@ -1,11 +1,14 @@
 const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId, postACommentOnArticle, updateVoteCountOnArticle } = require("../models/articles.models")
 
 exports.getAllArticles=(req,res,next)=>{
-    //const articleQuery= req.query.sort_by
-    //if(articleQuery===undefined)articleQuery= 'created_at' 
-    selectAllArticles()
+    const articleQuery= req.query.sort_by
+    const articleSortType=req.query.order
+    selectAllArticles(articleQuery, articleSortType)
     .then((articles)=>{
         res.status(200).send({articles})
+    })
+    .catch((err)=>{
+        return next(err)
     })
 }
 
