@@ -1,16 +1,18 @@
 const db=require("../db/connection.js")
 
-exports.selectAllArticles=(()=>{
-
+exports.selectAllArticles=((articleQuery)=>{
+    //articleQuery= "articles." + articleQuery
+    //console.log(articleQuery)
 
     return db.query(`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
     FROM articles
     INNER JOIN comments
     ON articles.article_id =comments.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC
+    ORDER BY created_at DESC
     ;`)
     .then((result)=>{
+        //console.log(result.rows)
         return result.rows
     })
 })
@@ -64,4 +66,15 @@ exports.postACommentOnArticle=((article_id, username, body)=>{
             }
             return result.rows[0]
         })
+})
+
+exports.updateVoteCountOnArticle=((incVotes, article_id)=>{
+    return db.query(`UPDATE articles SET votes= votes + $1 
+        WHERE article_id= $2
+        RETURNING *
+        ;`,[incVotes, article_id])
+    .then((result)=>{
+        if(result.rows.length===0 || typeof incVotes==="string") return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
+        return result.rows[0]
+    })
 })

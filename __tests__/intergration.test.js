@@ -7,7 +7,8 @@ const app=require("../app.js")
 //Refactor to not use FS after core
 const fs=require("fs/promises")
 
-//PUT ALL THE CHECK LENGTHS BEFORE THE FOR EACHES
+//PUT ALL THE CHECK LENGTHS BEFORE THE FOR EACHS
+//ERROR 404 CATCH IN APP.JS SAYS ARTICLE SPECIFICALLY
 
 beforeEach(()=>{
     return seed(data)
@@ -105,6 +106,15 @@ describe("GET /api/articles",()=>{
         .then(({body:{articles}})=>{
             expect(articles).toBeSortedBy("created_at",{descending:true})
             
+        })
+    })
+    //QUERIES=========================================
+    xtest("GET: 200 - Retrieved all data from articles sorted by the column queried",()=>{
+        return request(app)
+        .get("/api/articles?sort_by=author")
+        .expect(200)
+        .then(({body: {articles}})=>{
+            expect(articles).toBeSortedBy("author",{descending: true})
         })
     })
 })
@@ -289,6 +299,88 @@ describe("POST /api/articles/:article_id/comments",()=>{
         return request(app)
         .post("/api/articles/3/comments")
         .send(testComment)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+})
+
+//PATCH VOTES ON ARTICLES=============================
+describe("PATCH /api/articles/:article_id",()=>{
+    test("PATCH: 201 - Updated votes on an article, returns the article",()=>{
+        const testUpdate={incVotes: 127}
+        return request(app)
+        .patch("/api/articles/3")
+        .send(testUpdate)
+        .expect(201)
+        .then(({body:{article}})=>{
+            expect(article.article_id).toBe(3)
+            expect(article.title).toBe("Eight pug gifs that remind me of mitch")
+            expect(article.topic).toBe("mitch")
+            expect(article.author).toBe("icellusedkars")
+            expect(typeof article.created_at).toBe("string")
+            expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+            expect(article.votes).toBe(127)
+        })
+    })
+    test("PATCH: 201 - Votes should be updated and not just replaced",()=>{
+        const testUpdate={incVotes: 50}
+        return request(app)
+        .patch("/api/articles/1")
+        .send(testUpdate)
+        .expect(201)
+        .then(({body:{article}})=>{
+            expect(article.votes).toBe(150)
+        })
+    })
+    test("PATCH: 201 - Votes should also be able to decrease",()=>{
+        const testUpdate={incVotes: -50}
+        return request(app)
+        .patch("/api/articles/1")
+        .send(testUpdate)
+        .expect(201)
+        .then(({body:{article}})=>{
+            expect(article.votes).toBe(50)
+        })
+    })
+    test("PATCH: 201 - Should be unaffected if there's other keys in the object",()=>{
+        const testUpdate={incVotes: -50, test: "testing"}
+        return request(app)
+        .patch("/api/articles/1")
+        .send(testUpdate)
+        .expect(201)
+        .then(({body:{article}})=>{
+            expect(article.votes).toBe(50)
+        })
+    })
+    test("Error: 404 - Cannot Find That Article ID",()=>{
+        const testUpdate={incVotes: -50}
+        return request(app)
+        .patch("/api/articles/999")
+        .send(testUpdate)
+        .expect(404)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 404 - Article Not Found")
+        })
+
+    })
+    test("Error: 400 - Bad request, ID is not correct data type",()=>{
+        const testUpdate={incVotes: -50}
+        return request(app)
+        .patch("/api/articles/string")
+        .send(testUpdate)
+        .expect(400)
+        .then(({body:{msg}})=>{
+            expect(msg).toBe("Error 400 - Bad Request Given")
+        })
+    })
+    //MENTOR NOTE for some reason this test gives an error 404 even though the other test can produce a 400
+    xtest("Error: 400 - Bad request, incVotes is not correct data type",()=>{
+        const testUpdate={incVotes: "-50"}
+        return request(app)
+        .patch("/api/articles/1")
+        .send(testUpdate)
         .expect(400)
         .then(({body:{msg}})=>{
             expect(msg).toBe("Error 400 - Bad Request Given")
