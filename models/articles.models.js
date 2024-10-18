@@ -1,20 +1,33 @@
 const db=require("../db/connection.js")
 
-exports.selectAllArticles=((articleQuery)=>{
-    //articleQuery= "articles." + articleQuery
-    //console.log(articleQuery)
+exports.selectAllArticles=((articleQuery, articleSortType)=>{
+    const allowedInputs=["title", "topic", "author", "body", "created_at", "ASC", "DESC", "votes", undefined]
 
-    return db.query(`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
-    FROM articles
-    INNER JOIN comments
-    ON articles.article_id =comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY created_at DESC
-    ;`)
+    if(articleQuery===undefined)articleQuery="created_at"
+    if(articleSortType===undefined) articleSortType= "DESC"
+
+    if(!allowedInputs.includes(articleQuery)){
+        return Promise.reject({ status: 404, msg: "Error 404 - Invalid Input Given" })
+    }
+    if(!allowedInputs.includes(articleSortType.toUpperCase())){
+        return Promise.reject({ status: 404, msg: "Error 404 - Invalid Input Given" })
+    }
+
+    if(articleQuery===undefined)articleQuery="created_at"
+    if(articleSortType===undefined) articleSortType= "DESC"
+
+    articleQuery= " ORDER BY articles." + articleQuery + " " + articleSortType +";"
+    let queryStr=`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
+        FROM articles
+        INNER JOIN comments
+        ON articles.article_id =comments.article_id
+        GROUP BY articles.article_id`
+    queryStr= queryStr + articleQuery
+
+    return db.query(queryStr)
     .then((result)=>{
-        //console.log(result.rows)
         return result.rows
-    })
+        })
 })
 
 exports.selectArticlesById=((article_id)=>{
