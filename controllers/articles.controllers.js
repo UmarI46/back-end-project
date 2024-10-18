@@ -1,6 +1,8 @@
-const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId, postACommentOnArticle } = require("../models/articles.models")
+const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId, postACommentOnArticle, updateVoteCountOnArticle } = require("../models/articles.models")
 
 exports.getAllArticles=(req,res,next)=>{
+    //const articleQuery= req.query.sort_by
+    //if(articleQuery===undefined)articleQuery= 'created_at' 
     selectAllArticles()
     .then((articles)=>{
         res.status(200).send({articles})
@@ -35,6 +37,18 @@ exports.writeACommentOnArticle=(req,res,next)=>{
     postACommentOnArticle(article_id, username, body)
     .then((newComment)=>{
         res.status(201).send({newComment})
+    })
+    .catch((err)=>{
+        return next(err)
+    })
+}
+
+exports.patchVoteCountOnArticle=(req,res,next)=>{
+    const {incVotes}= req.body
+    const {article_id}= req.params
+    updateVoteCountOnArticle(incVotes, article_id)
+    .then((article)=>{
+        res.status(201).send({article})
     })
     .catch((err)=>{
         return next(err)

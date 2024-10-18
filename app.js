@@ -1,7 +1,7 @@
 const express=require("express")
 const { getTopics } = require("./controllers/topics.controllers")
 const { getApis } = require("./controllers/api.controllers")
-const { getArticlesById, getAllArticles, getAllCommentsByArticleId, writeACommentOnArticle } = require("./controllers/articles.controllers")
+const { getArticlesById, getAllArticles, getAllCommentsByArticleId, writeACommentOnArticle, patchVoteCountOnArticle } = require("./controllers/articles.controllers")
 const { removeCommentById } = require("./controllers/comments.controllers")
 const { getAllUsers } = require("./controllers/users.controllers")
 const app=express()
@@ -19,6 +19,8 @@ app.get("/api/articles/:article_id", getArticlesById)
 app.get("/api/articles/:article_id/comments", getAllCommentsByArticleId)
 
 app.post("/api/articles/:article_id/comments", writeACommentOnArticle)
+
+app.patch("/api/articles/:article_id", patchVoteCountOnArticle)
 
 app.get("/api/users", getAllUsers)
 
