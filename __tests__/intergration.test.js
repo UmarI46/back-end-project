@@ -78,7 +78,7 @@ describe("GET /api/topics",()=>{
 //===================================================
 
 //GET ALL ARTICLES===================================
-describe.only("GET /api/articles",()=>{
+describe("GET /api/articles",()=>{
     test("GET: 200 - Retrieved all data from articles", ()=>{
         return request(app)
         .get("/api/articles")
