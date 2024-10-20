@@ -78,7 +78,7 @@ describe("GET /api/topics",()=>{
 //===================================================
 
 //GET ALL ARTICLES===================================
-describe("GET /api/articles",()=>{
+describe.only("GET /api/articles",()=>{
     test("GET: 200 - Retrieved all data from articles", ()=>{
         return request(app)
         .get("/api/articles")
@@ -133,9 +133,36 @@ describe("GET /api/articles",()=>{
             expect(articles).toBeSortedBy("created_at",{descending: false})
         })
     })
-    test("Error: 404 - Invalid Query Given",()=>{
+    test("Error: 404 - Invalid order Query Given",()=>{
         return request(app)
         .get("/api/articles?sort_by=votes&order=ASC SELECT * FROM articles")
+        .expect(404)
+        .then(({body: {msg}})=>{
+            expect(msg).toBe("Error 404 - Invalid Input Given")
+        })
+    })
+    test("Error: 404 - Invalid sort_by Query Given",()=>{
+        return request(app)
+        .get("/api/articles?sort_by=SELECT * FROM articles&order=ASC")
+        .expect(404)
+        .then(({body: {msg}})=>{
+            expect(msg).toBe("Error 404 - Invalid Input Given")
+        })
+    })
+    test("GET: 200 - Get all articles with a certain topic",()=>{
+        return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({body: {articles}})=>{
+            expect(articles.length).toBeGreaterThan(0)
+            articles.forEach((article)=>{
+                expect(article.topic).toBe("mitch")
+            })
+        })
+    })
+    test("ERROR: 404 - Invalid topic query given.",()=>{
+        return request(app)
+        .get("/api/articles?topic=mitch SELECT * FROM articles")
         .expect(404)
         .then(({body: {msg}})=>{
             expect(msg).toBe("Error 404 - Invalid Input Given")

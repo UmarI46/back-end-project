@@ -1,28 +1,27 @@
 const db=require("../db/connection.js")
 
-exports.selectAllArticles=((articleQuery, articleSortType)=>{
-    const allowedInputs=["title", "topic", "author", "body", "created_at", "ASC", "DESC", "votes", undefined]
+exports.selectAllArticles=((articleQuery, articleSortType, articleTopic)=>{
+    const allowedInputs=["title", "topic", "author", "body", "created_at", "votes", "ASC", "DESC", undefined, "cats", "mitch"]
 
     if(articleQuery===undefined)articleQuery="created_at"
     if(articleSortType===undefined) articleSortType= "DESC"
 
-    if(!allowedInputs.includes(articleQuery)){
-        return Promise.reject({ status: 404, msg: "Error 404 - Invalid Input Given" })
-    }
-    if(!allowedInputs.includes(articleSortType.toUpperCase())){
+    if(!allowedInputs.includes(articleQuery) || !allowedInputs.includes(articleSortType.toUpperCase()) || !allowedInputs.includes(articleTopic)){
         return Promise.reject({ status: 404, msg: "Error 404 - Invalid Input Given" })
     }
 
     if(articleQuery===undefined)articleQuery="created_at"
     if(articleSortType===undefined) articleSortType= "DESC"
 
-    articleQuery= " ORDER BY articles." + articleQuery + " " + articleSortType +";"
+    articleQuery= " ORDER BY articles." + articleQuery + " " + articleSortType 
     let queryStr=`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
         FROM articles
         INNER JOIN comments
-        ON articles.article_id =comments.article_id
-        GROUP BY articles.article_id`
-    queryStr= queryStr + articleQuery
+        ON articles.article_id =comments.article_id`
+
+    if(articleTopic===undefined){queryStr= queryStr + " GROUP BY articles.article_id " + articleQuery + ";"}
+
+    else{queryStr= queryStr + " WHERE articles.topic = " + `'${articleTopic}'` + " GROUP BY articles.article_id" + articleQuery + ";"}
 
     return db.query(queryStr)
     .then((result)=>{

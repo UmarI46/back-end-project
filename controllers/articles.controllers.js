@@ -3,7 +3,8 @@ const { selectArticlesById, selectAllArticles, selectAllCommentsByArticleId, pos
 exports.getAllArticles=(req,res,next)=>{
     const articleQuery= req.query.sort_by
     const articleSortType=req.query.order
-    selectAllArticles(articleQuery, articleSortType)
+    const articleTopic=req.query.topic
+    selectAllArticles(articleQuery, articleSortType,articleTopic)
     .then((articles)=>{
         res.status(200).send({articles})
     })
