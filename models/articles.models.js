@@ -30,11 +30,21 @@ exports.selectAllArticles=((articleQuery, articleSortType, articleTopic)=>{
 })
 
 exports.selectArticlesById=((article_id)=>{
-    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+
+    return db.query(`SELECT articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
+    FROM articles
+    INNER JOIN comments
+    ON articles.article_id= comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id
+    ;`, [article_id])
+
     .then((result)=>{
         if(result.rows.length===0){
             return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
         }
+        console.log("TEST")
+        console.log(result.rows[0])
         return result.rows[0]
     })
 })
@@ -50,7 +60,8 @@ exports.selectAllCommentsByArticleId=((article_id)=>{
             if(result.rows.length>0)validId=true
         })
     }
-    return db.query(`SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id 
+
+    return db.query(`SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id
     FROM articles
     INNER JOIN comments
     ON comments.article_id= articles.article_id 
