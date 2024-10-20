@@ -203,6 +203,14 @@ describe("GET /api/articles/:article_id",()=>{
             expect(body.msg).toBe("Error 400 - Bad Request Given")
         })
     })
+    test("GET: 200 - Article should now have also send back a total of the amount of comments on article",()=>{
+        return request(app)
+        .get("/api/articles/3")
+        .expect(200)
+        .then(({body:{article}})=>{
+           expect(article.comment_count).toBe(2)
+        })
+    })
 })
 
 //GET ALL COMMENTS BY ARTICLE ID======================
