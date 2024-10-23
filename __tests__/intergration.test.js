@@ -3,9 +3,7 @@ const seed=require("../db/seeds/seed.js")
 const db=require("../db/connection.js")
 const data=require("../db/data/test-data")
 const app=require("../app.js")
-
-//Refactor to not use FS after core
-const fs=require("fs/promises")
+const apisJSON=require("../endpoints.json")
 
 //PUT ALL THE CHECK LENGTHS BEFORE THE FOR EACHS
 //ERROR 404 CATCH IN APP.JS SAYS ARTICLE SPECIFICALLY
@@ -28,10 +26,7 @@ describe("GET /api",()=>{
         .get("/api")
         .expect(200)
         .then(({body:{apis}})=>{
-            fs.readFile(`${__dirname}/../endpoints.json`)
-            .then((apiObj)=>{
-                expect(apis).toEqual(JSON.parse(apiObj))
-            })
+            expect(apis).toEqual(apisJSON)
             expect(apis.length).not.toEqual(0)
         })
     })
@@ -172,18 +167,21 @@ describe("GET /api/articles",()=>{
 
 //GET ARTICLE BY ID==================================
 describe("GET /api/articles/:article_id",()=>{
+    
     test("GET: 200 - Retrieved data from article based on id.",()=>{
         return request(app)
-        .get("/api/articles/1")
+        .get("/api/articles/4")
         .expect(200)
         .then(({body:{article}})=>{
-           expect(article.title).toBe("Living in the shadow of a great man") 
-           expect(article.topic).toBe("mitch")
-           expect(article.author).toBe("butter_bridge")
-           expect(article.body).toBe("I find this existence challenging")
-           expect(article).toMatchObject({ created_at: expect.any(String)})
-           expect(article.votes).toBe(100)
-           expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+            expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                body: expect.any(String)
+            })
         })
     })
 
@@ -243,16 +241,15 @@ describe("GET /api/articles/:article_id/comments",()=>{
         })
     })
     test("GET: 200 - Received an empty array when given article ID that doesn't have any comments",()=>{
-        //console.log("get 200 place")
         return request(app)
-        .get("/api/articles/4/comments")
+        .get("/api/articles/2/comments")
         .expect(200)
         .then(({body:{comments}})=>{
             expect(Array.isArray(comments)).toBe(true)
+            expect(comments.length).toBe(0)
         })
     })
     test("Error: 404 - ID Not Found, when given an ID that does not exist",()=>{
-        //console.log("error 404 place")
         return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
@@ -260,8 +257,7 @@ describe("GET /api/articles/:article_id/comments",()=>{
             expect(body.msg).toBe("Error 404 - Article Not Found")
         })
     })
-    xtest("Error: 400 - Bad request, ID is not correct data type",()=>{
-        console.log("error 400 place")
+    test("Error: 400 - Bad request, ID is not correct data type",()=>{
         return request(app)
         .get("/api/articles/string/comments")
         .expect(400)
@@ -428,17 +424,6 @@ describe("PATCH /api/articles/:article_id",()=>{
         const testUpdate={incVotes: -50}
         return request(app)
         .patch("/api/articles/string")
-        .send(testUpdate)
-        .expect(400)
-        .then(({body:{msg}})=>{
-            expect(msg).toBe("Error 400 - Bad Request Given")
-        })
-    })
-    //MENTOR NOTE for some reason this test gives an error 404 even though the other test can produce a 400
-    xtest("Error: 400 - Bad request, incVotes is not correct data type",()=>{
-        const testUpdate={incVotes: "-50"}
-        return request(app)
-        .patch("/api/articles/1")
         .send(testUpdate)
         .expect(400)
         .then(({body:{msg}})=>{

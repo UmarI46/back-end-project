@@ -33,7 +33,7 @@ exports.selectArticlesById=((article_id)=>{
 
     return db.query(`SELECT articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
     FROM articles
-    INNER JOIN comments
+    LEFT JOIN comments
     ON articles.article_id= comments.article_id
     WHERE articles.article_id = $1
     GROUP BY articles.article_id
@@ -43,15 +43,12 @@ exports.selectArticlesById=((article_id)=>{
         if(result.rows.length===0){
             return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
         }
-        console.log("TEST")
-        console.log(result.rows[0])
         return result.rows[0]
     })
 })
 
 exports.selectAllCommentsByArticleId=((article_id)=>{
     let validId=false
-    //console.log( Number(article_id))
     if(typeof Number(article_id) !==NaN){
         db.query(`SELECT * FROM articles 
             WHERE article_id=$1
@@ -60,7 +57,6 @@ exports.selectAllCommentsByArticleId=((article_id)=>{
             if(result.rows.length>0)validId=true
         })
     }
-
     return db.query(`SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id
     FROM articles
     INNER JOIN comments
@@ -70,6 +66,7 @@ exports.selectAllCommentsByArticleId=((article_id)=>{
     ;`
     ,[article_id])
     .then((result)=>{
+        
         if(result.rows.length===0 && validId===false){
             return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
         } 
@@ -92,12 +89,12 @@ exports.postACommentOnArticle=((article_id, username, body)=>{
 })
 
 exports.updateVoteCountOnArticle=((incVotes, article_id)=>{
-    return db.query(`UPDATE articles SET votes= votes + $1 
+    return db.query(`UPDATE articles SET votes= votes + $1
         WHERE article_id= $2
         RETURNING *
         ;`,[incVotes, article_id])
     .then((result)=>{
-        if(result.rows.length===0 || typeof incVotes==="string") return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
+        if(result.rows.length===0) return Promise.reject({ status: 404, msg: "Error 404 - Article Not Found" })
         return result.rows[0]
     })
 })

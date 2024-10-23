@@ -26,7 +26,9 @@ exports.getArticlesById=(req,res,next)=>{
 
 exports.getAllCommentsByArticleId=(req,res,next)=>{
     const {article_id}=req.params
-    selectAllCommentsByArticleId(article_id)
+    selectArticlesById(article_id).then(()=>{
+        return selectAllCommentsByArticleId(article_id)
+    })
     .then((comments)=>{
         res.status(200).send({comments})
     })
